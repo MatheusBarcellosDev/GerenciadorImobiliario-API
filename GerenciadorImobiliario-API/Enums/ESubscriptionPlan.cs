@@ -1,8 +1,9 @@
 ﻿namespace GerenciadorImobiliario_API.Enums
 {
-    public enum SubscriptionPlan
+    public enum ESubscriptionPlan
     {
-        Basico,
+        FreeTrial,
+        Basic,
         Premium,
         Enterprise
     }
