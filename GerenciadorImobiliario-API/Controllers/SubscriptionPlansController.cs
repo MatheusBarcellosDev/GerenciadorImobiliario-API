@@ -2,6 +2,7 @@
 using GerenciadorImobiliario_API.Data;
 using GerenciadorImobiliario_API.Models;
 using GerenciadorImobiliario_API.ViewModels.SubscriptionPlans;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,7 @@ namespace GerenciadorImobiliario_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post([FromBody] CreateUpdateSubscriptionPlanViewModel model)
         {
             if (!ModelState.IsValid)
@@ -40,6 +42,7 @@ namespace GerenciadorImobiliario_API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Get()
         {
             var subscriptionPlans = await _context.SubscriptionPlans.ToListAsync();
@@ -47,6 +50,7 @@ namespace GerenciadorImobiliario_API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> Get(long id)
         {
             var subscriptionPlan = await _context.SubscriptionPlans.FindAsync(id);
@@ -58,6 +62,7 @@ namespace GerenciadorImobiliario_API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Put(long id, [FromBody] CreateUpdateSubscriptionPlanViewModel model)
         {
             if (!ModelState.IsValid)

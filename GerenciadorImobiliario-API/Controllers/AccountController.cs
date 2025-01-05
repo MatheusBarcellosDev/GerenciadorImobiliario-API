@@ -333,6 +333,31 @@ namespace GerenciadorImobiliario_API.Controllers
             return Ok(new ResultViewModel<string>("Senha redefinida com sucesso!", null));
         }
 
+        [HttpPost("resend-confirmation-email")]
+        [Authorize]
+        public async Task<IActionResult> ResendConfirmationEmail()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userIdString);
+
+            if (user == null)
+            {
+                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
+            }
+
+            var emailToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = Url.Action("ConfirmEmail", "Accounts", new { userId = user.Id, token = emailToken }, Request.Scheme);
+
+            _emailService.Send(
+                user.Name,
+                user.Email,
+                subject: "Confirmação de E-mail",
+                body: $"Por favor, confirme seu e-mail clicando no link: <a href='{confirmationLink}'>Confirmar E-mail</a>"
+            );
+
+            return Ok(new ResultViewModel<string>("E-mail de confirmação reenviado com sucesso!", null));
+        }
+
         [HttpDelete("{id}")]
         [Authorize] 
         public async Task<IActionResult> DeleteUser(long id)
