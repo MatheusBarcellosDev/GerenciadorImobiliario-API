@@ -18,7 +18,7 @@ public class TokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtKey = _configuration["JwtKey"];
         var key = Encoding.ASCII.GetBytes(jwtKey);
-        Console.WriteLine($"JwtKey in TokenService: {jwtKey}"); // Verifique se a chave está correta
+        Console.WriteLine($"JwtKey in TokenService: {jwtKey}"); 
 
         var claims = new List<Claim>
         {
