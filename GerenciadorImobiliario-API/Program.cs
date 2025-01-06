@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using Quartz;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -23,12 +25,35 @@ builder.Services.AddSwaggerGen(
     x => x.CustomSchemaIds(y => y.FullName)
     );
 
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddHostedService<InactiveLeadService>();
+
 ConfigureServices(builder);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+// Configuração da compressão de resposta
+builder.Services.AddResponseCompression(options =>
+{
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Optimal;
+});
+
+
 var app = builder.Build();
+
+app.UseResponseCompression();
+
 LoadConfiguration(app);
 
 app.UseAuthentication();
