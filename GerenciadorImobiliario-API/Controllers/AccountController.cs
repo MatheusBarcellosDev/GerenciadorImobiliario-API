@@ -2,7 +2,6 @@
 using GerenciadorImobiliario_API.Data;
 using GerenciadorImobiliario_API.Enums;
 using GerenciadorImobiliario_API.Models;
-using GerenciadorImobiliario_API.Services;
 using GerenciadorImobiliario_API.ViewModels;
 using GerenciadorImobiliario_API.ViewModels.Accounts;
 using GerenciadorImobiliario_API.ViewModels.SubscriptionPlans;
@@ -11,10 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-
-using Microsoft.Extensions.Logging;
 using Blog.Services;
 
 namespace GerenciadorImobiliario_API.Controllers
@@ -42,6 +38,89 @@ namespace GerenciadorImobiliario_API.Controllers
         {
             var slug = name.ToLower().Replace(" ", "-");
             return $"{slug}-{userId}";
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetMe()
+        {
+
+            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdString))
+                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
+
+            if (!long.TryParse(userIdString, out var userId))
+            {
+                return BadRequest(new ResultViewModel<string>("UserId inválido."));
+            }
+
+            var user = await _context.Users
+                .Include(u => u.SubscriptionPlan)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
+
+            var userViewModel = new UserViewModel
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                UserName = user.UserName,
+                SubscriptionPlan = user.SubscriptionPlan?.Name.ToString()
+            };
+
+            return Ok(new ResultViewModel<UserViewModel>(userViewModel));
+        }
+
+        [HttpGet("me/details")]
+        [Authorize]
+        public async Task<IActionResult> GetUserDetails()
+        {
+            _logger.LogInformation("Recebendo requisição para o endpoint GetUserDetails.");
+
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation($"UserId encontrado: {userIdString}");
+
+            if (string.IsNullOrEmpty(userIdString) || !long.TryParse(userIdString, out var userId))
+            {
+                return BadRequest(new ResultViewModel<string>("UserId inválido."));
+            }
+
+            var user = await _context.Users
+                .Include(u => u.SubscriptionPlan)
+                .Include(u => u.Address)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
+            }
+
+            var userDetailsViewModel = new UserDetailsViewModel
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                UserName = user.UserName,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
+                City = user.Address?.City,
+                State = user.Address?.State,
+                PostalCode = user.Address?.ZipCode,
+                Creci = user.Creci,
+                Specialties = user.Specialties,
+                YearsOfExperience = user.YearsOfExperience,
+                Description = user.Description,
+                LinkedIn = user.LinkedIn,
+                Instagram = user.Instagram,
+                SubscriptionPlan = user.SubscriptionPlan?.Name.ToString()
+            };
+
+            return Ok(new ResultViewModel<UserDetailsViewModel>(userDetailsViewModel));
         }
 
         [HttpPost]
@@ -149,135 +228,8 @@ namespace GerenciadorImobiliario_API.Controllers
             {
                 return StatusCode(500, new ResultViewModel<string>(ex.Message));
             }
-        }
+        } 
 
-        [HttpGet("me")]
-        [Authorize]
-        public async Task<IActionResult> GetMe()
-        {
-
-            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userIdString))
-                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
-
-            if (!long.TryParse(userIdString, out var userId))
-            {
-                return BadRequest(new ResultViewModel<string>("UserId inválido."));
-            }
-
-            var user = await _context.Users
-                .Include(u => u.SubscriptionPlan)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
-
-            var userViewModel = new UserViewModel
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                UserName = user.UserName,
-                SubscriptionPlan = user.SubscriptionPlan?.Name.ToString()
-            };
-
-            return Ok(new ResultViewModel<UserViewModel>(userViewModel));
-        }
-
-        [HttpGet("me/details")]
-        [Authorize]
-        public async Task<IActionResult> GetUserDetails()
-        {
-            _logger.LogInformation("Recebendo requisição para o endpoint GetUserDetails.");
-
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation($"UserId encontrado: {userIdString}");
-
-            if (string.IsNullOrEmpty(userIdString) || !long.TryParse(userIdString, out var userId))
-            {
-                return BadRequest(new ResultViewModel<string>("UserId inválido."));
-            }
-
-            var user = await _context.Users
-                .Include(u => u.SubscriptionPlan)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-            {
-                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
-            }
-
-            var userDetailsViewModel = new UserDetailsViewModel
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                UserName = user.UserName,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Address,
-                City = user.City,
-                State = user.State,
-                PostalCode = user.PostalCode,
-                Creci = user.Creci,
-                Specialties = user.Specialties,
-                YearsOfExperience = user.YearsOfExperience,
-                Description = user.Description,
-                LinkedIn = user.LinkedIn,
-                Instagram = user.Instagram,
-                SubscriptionPlan = user.SubscriptionPlan?.Name.ToString()
-            };
-
-            return Ok(new ResultViewModel<UserDetailsViewModel>(userDetailsViewModel));
-        }
-
-        [HttpPut("update-profile")]
-        [Authorize]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
-            }
-
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userIdString) || !long.TryParse(userIdString, out var userId))
-            {
-                return BadRequest(new ResultViewModel<string>("UserId inválido."));
-            }
-
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            if (user == null)
-            {
-                return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
-            }
-
-            user.Name = model.Name;
-            user.PhoneNumber = model.PhoneNumber;
-            user.Address = model.Address;
-            user.City = model.City;
-            user.State = model.State;
-            user.PostalCode = model.PostalCode;
-            user.Creci = model.Creci;
-            user.Specialties = model.Specialties;
-            user.YearsOfExperience = model.YearsOfExperience;
-            user.Description = model.Description;
-            user.LinkedIn = model.LinkedIn;
-            user.Instagram = model.Instagram;
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest(new ResultViewModel<string>(result.Errors.Select(e => e.Description).ToList()));
-            }
-
-            return Ok(new ResultViewModel<string>("Perfil atualizado com sucesso!", null));
-        }
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
@@ -356,6 +308,56 @@ namespace GerenciadorImobiliario_API.Controllers
             );
 
             return Ok(new ResultViewModel<string>("E-mail de confirmação reenviado com sucesso!", null));
+        }
+
+
+        [HttpPut("me/update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser([FromBody] UserDetailsViewModel model)
+        {
+            try
+            {
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userIdString) || !long.TryParse(userIdString, out var userId))
+                {
+                    return BadRequest(new ResultViewModel<string>("UserId inválido."));
+                }
+
+                var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    return NotFound(new ResultViewModel<string>("Usuário não encontrado."));
+                }
+
+                user.Name = model.Name;
+                user.PhoneNumber = model.PhoneNumber;
+                user.Creci = model.Creci;
+                user.Specialties = model.Specialties;
+                user.YearsOfExperience = model.YearsOfExperience;
+                user.Description = model.Description;
+                user.LinkedIn = model.LinkedIn;
+                user.Instagram = model.Instagram;
+
+                if (user.Address == null)
+                {
+                    user.Address = new Address();
+                }
+
+                user.Address.City = model.City;
+                user.Address.State = model.State;
+                user.Address.ZipCode = model.PostalCode;
+
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new ResultViewModel<UserDetailsViewModel>(model));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar usuário.");
+                return StatusCode(500, new ResultViewModel<string>("Erro ao atualizar usuário."));
+            }
         }
 
         [HttpDelete("{id}")]
