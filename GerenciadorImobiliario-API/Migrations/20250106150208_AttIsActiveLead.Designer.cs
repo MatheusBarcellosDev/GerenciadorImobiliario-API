@@ -4,6 +4,7 @@ using GerenciadorImobiliario_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GerenciadorImobiliario_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250106150208_AttIsActiveLead")]
+    partial class AttIsActiveLead
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,24 +100,6 @@ namespace GerenciadorImobiliario_API.Migrations
                     b.ToTable("Client", (string)null);
                 });
 
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.ClientPropertyInterest", b =>
-                {
-                    b.Property<long>("ClientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PropertyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("InterestDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("ClientId", "PropertyId");
-
-                    b.HasIndex("PropertyId");
-
-                    b.ToTable("ClientPropertyInterest", (string)null);
-                });
-
             modelBuilder.Entity("GerenciadorImobiliario_API.Models.Lead", b =>
                 {
                     b.Property<long>("Id")
@@ -191,9 +176,8 @@ namespace GerenciadorImobiliario_API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -204,13 +188,13 @@ namespace GerenciadorImobiliario_API.Migrations
                         {
                             Id = 1L,
                             Name = "Novo Lead",
-                            Status = "NovoLead"
+                            Status = 1
                         },
                         new
                         {
                             Id = 2L,
                             Name = "Cliente",
-                            Status = "Cliente"
+                            Status = 2
                         });
                 });
 
@@ -227,9 +211,8 @@ namespace GerenciadorImobiliario_API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<string>("Stage")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Stage")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -240,43 +223,43 @@ namespace GerenciadorImobiliario_API.Migrations
                         {
                             Id = 1L,
                             Name = "Esperando Atendimento",
-                            Stage = "EsperandoAtendimento"
+                            Stage = 1
                         },
                         new
                         {
                             Id = 2L,
                             Name = "Em Atendimento",
-                            Stage = "EmAtendimento"
+                            Stage = 2
                         },
                         new
                         {
                             Id = 3L,
                             Name = "Em Visita",
-                            Stage = "EmVisita"
+                            Stage = 3
                         },
                         new
                         {
                             Id = 4L,
                             Name = "Proposta Enviada",
-                            Stage = "PropostaEnviada"
+                            Stage = 4
                         },
                         new
                         {
                             Id = 5L,
                             Name = "Documentação",
-                            Stage = "Documentacao"
+                            Stage = 5
                         },
                         new
                         {
                             Id = 6L,
                             Name = "Venda Concluída",
-                            Stage = "VendaConcluida"
+                            Stage = 6
                         },
                         new
                         {
                             Id = 7L,
                             Name = "Venda Perdida",
-                            Stage = "VendaPerdida"
+                            Stage = 7
                         });
                 });
 
@@ -291,67 +274,15 @@ namespace GerenciadorImobiliario_API.Migrations
                     b.Property<long?>("AddressId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal?>("CondominiumFee")
-                        .HasColumnType("decimal(65,30)");
-
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("HasBalcony")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("HasBarbecueGrill")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("HasBuiltInWardrobes")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("HasGarden")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("HasPool")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<decimal?>("Iptu")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<bool>("IsFurnished")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("NumberOfBathrooms")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NumberOfBedrooms")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NumberOfParkingSpaces")
-                        .HasColumnType("int");
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<long>("OwnerId")
                         .HasColumnType("bigint");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<decimal?>("RentPrice")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<double>("TotalArea")
-                        .HasColumnType("double");
-
-                    b.Property<string>("Type")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<double>("UsableArea")
-                        .HasColumnType("double");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -359,61 +290,7 @@ namespace GerenciadorImobiliario_API.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Property", (string)null);
-                });
-
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.PropertyDocument", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime?>("ExpirationDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<long>("PropertyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PropertyId");
-
-                    b.ToTable("PropertyDocument", (string)null);
-                });
-
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.PropertyImage", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("PropertyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PropertyId");
-
-                    b.ToTable("PropertyImage", (string)null);
                 });
 
             modelBuilder.Entity("GerenciadorImobiliario_API.Models.PropertyPreference", b =>
@@ -663,25 +540,6 @@ namespace GerenciadorImobiliario_API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.ClientPropertyInterest", b =>
-                {
-                    b.HasOne("GerenciadorImobiliario_API.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GerenciadorImobiliario_API.Models.Property", "Property")
-                        .WithMany("ClientPropertyInterests")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Property");
-                });
-
             modelBuilder.Entity("GerenciadorImobiliario_API.Models.Lead", b =>
                 {
                     b.HasOne("GerenciadorImobiliario_API.Models.Client", "Client")
@@ -721,47 +579,17 @@ namespace GerenciadorImobiliario_API.Migrations
                     b.HasOne("GerenciadorImobiliario_API.Models.Address", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("GerenciadorImobiliario_API.Models.Client", "Owner")
                         .WithMany("PropertiesForSale")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GerenciadorImobiliario_API.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Address");
 
                     b.Navigation("Owner");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.PropertyDocument", b =>
-                {
-                    b.HasOne("GerenciadorImobiliario_API.Models.Property", "Property")
-                        .WithMany("Documents")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Property");
-                });
-
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.PropertyImage", b =>
-                {
-                    b.HasOne("GerenciadorImobiliario_API.Models.Property", "Property")
-                        .WithMany("Images")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Property");
                 });
 
             modelBuilder.Entity("GerenciadorImobiliario_API.Models.PropertyPreference", b =>
@@ -826,15 +654,6 @@ namespace GerenciadorImobiliario_API.Migrations
             modelBuilder.Entity("GerenciadorImobiliario_API.Models.PipelineStage", b =>
                 {
                     b.Navigation("Leads");
-                });
-
-            modelBuilder.Entity("GerenciadorImobiliario_API.Models.Property", b =>
-                {
-                    b.Navigation("ClientPropertyInterests");
-
-                    b.Navigation("Documents");
-
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("GerenciadorImobiliario_API.Models.User", b =>
