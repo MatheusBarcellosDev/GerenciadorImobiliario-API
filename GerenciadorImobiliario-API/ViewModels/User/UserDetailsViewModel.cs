@@ -1,4 +1,6 @@
-﻿namespace GerenciadorImobiliario_API.ViewModels.User
+﻿using GerenciadorImobiliario_API.Models;
+
+namespace GerenciadorImobiliario_API.ViewModels.User
 {
     public class UserDetailsViewModel
     {
@@ -7,7 +9,7 @@
         public string Email { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
-        public string? Address { get; set; }
+        public Address? Address { get; set; } 
         public string? City { get; set; }
         public string? State { get; set; }
         public string? PostalCode { get; set; }
